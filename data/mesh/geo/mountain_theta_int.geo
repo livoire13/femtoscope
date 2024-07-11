@@ -1,24 +1,24 @@
 // Gmsh project created on Wed Feb 08 17:52:02 2023
 
 // Geometrical parameters
-thetam = 0.01;
-hm = 0.01;
+thetam = 0.05;
+hm = 0;
 Re = 1.0;
-Rc = 7.0;
-Rts = 0.0;
+Rc = 7;
+Rts = 0.99;
 
 // Lines
-x1 = 1.059;
-x2 = 1.111;
-x3 = 1.314;
-x4 = 4.645;
-x5 = 6.617;
+x1 = 1.2;
+x2 = 2;
+x3 = 3;
+x4 = 4;
+x5 = 6;
 
 // Sizes
-distMaxJump = 0.5;
+distMaxJump = 1.5;
 distMinJump = 0.0;
-sizeMinInt = 0.0005;
-sizeMaxInt = 0.04;
+sizeMinInt = 0.025;
+sizeMaxInt = 0.1;
 sizeJump = 0.01;
 
 

@@ -1,0 +1,35 @@
+name: femtoscope
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pytables
+  - pytest
+  - psutil
+  - pyshtools
+  - h5py
+  - pyevtk
+  - pip
+  - numpy<2
+  - sympy
+  - pyqt
+  - sfepy
+  - matplotlib
+  - pandas
+  - pyflakes
+  - scipy
+  - colorcet
+  - pygments
+  - meshio==4.4.6
+  - m2w64-gcc
+  - m2w64-gcc-fortran
+  - m2w64-gcc-libs
+  - m2w64-gcc-libs-core
+  - cython
+  - pytest
+  - pyvista
+  - pip:
+    - gmsh==4.11.1
+    - pdoc>=14
+    - jax>=0.4.26

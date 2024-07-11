@@ -1,13 +1,13 @@
 // Gmsh project created on Thu Feb 09 11:11:05 2023
 
 // Geometrical parameters
-thetam = 0.01;
+thetam = 0.05;
 Rc = 7.0;
 
 // Sizes
-sizeMaxExt = 0.04;
-sizeMinExt = 0.02;
-sizeMinInt = 0.0005;
+sizeMaxExt = 0.1;
+sizeMinExt = 0.05;
+sizeMinInt = 0.025;
 
 Point(1) = {0, 0, 0, 1.0};
 //+

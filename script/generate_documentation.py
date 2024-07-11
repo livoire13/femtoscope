@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Feb 24 14:48:41 2022
-Script for generating femtoscope documentation!
+Script for generating femtoscope documentation using pdoc.
 
 For numpy style syntax, visit:
 https://numpydoc.readthedocs.io/en/latest/example.html
@@ -10,7 +10,6 @@ For pdoc, visit:
 https://github.com/mitmproxy/pdoc
 https://pdoc.dev/docs/pdoc.html
 
-@author: hlevy
 """
 
 import pdoc

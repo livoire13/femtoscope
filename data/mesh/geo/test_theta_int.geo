@@ -4,7 +4,8 @@ Rts = 0.0;
 Rc = 5.0;
 sa = 1.0;
 size = 0.1;
-Ngamma = 50;
+Ngamma = 40;
+size_min = 0.03;
 
 //+
 Point(1) = {Rts, 0, 0, 1.0};
@@ -47,7 +48,7 @@ Physical Curve(203) = {1};
 //+
 Physical Surface(300) = {1};
 //+
-Physical Surface(300) += {2};
+Physical Surface(301) = {2};
 //+
 Transfinite Curve {4} = Ngamma Using Progression 1;
 //+
@@ -59,4 +60,28 @@ Field[1].VIn = size;
 //+
 Field[1].VOut = size;
 //+
-Background Field = 1;
+Field[2] = Distance;
+//+
+Field[2].CurvesList = {7};
+//+
+Field[2].Sampling = 1000;
+//+
+Field[3] = Threshold;
+//+
+Field[3].DistMax = 0.7;
+//+
+Field[3].DistMin = 0;
+//+
+Field[3].InField = 2;
+//+
+Field[3].Sigmoid = 1;
+//+
+Field[3].SizeMax = size;
+//+
+Field[3].SizeMin = size_min;
+//+
+Field[4] = Min;
+//+
+Field[4].FieldsList = {1, 3};
+//+
+Background Field = 4;

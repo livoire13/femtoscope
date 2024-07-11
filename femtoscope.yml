@@ -31,5 +31,5 @@ dependencies:
   - pyvista
   - pip:
     - gmsh==4.11.1
-    - pdoc>=14
+    - pdoc>=14.5.1
     - jax>=0.4.26

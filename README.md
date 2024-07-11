@@ -39,7 +39,7 @@ The project uses Python 3.9.7
 - pyvista 0.38.3
 - scipy 1.10.1
 - sfepy 2023.2
-- pdoc 10.0.1
+- pdoc 14.5.1
 - gmsh  4.11.1
 	
 ## Tree structure

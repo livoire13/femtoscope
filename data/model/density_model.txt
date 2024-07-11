@@ -1,0 +1,10 @@
+Modèle PREM:
+
+download
+http://ds.iris.edu/spud/earthmodel/9991844
+
+wikipedia
+The preliminary reference Earth model (PREM) is a one-dimensional model representing the average Earth properties as a function of planetary radius.[1] It includes a table of Earth properties, including elastic properties, attenuation, density, pressure, and gravity, as a function of planetary radius. 
+
+Atmospheric model [US76]
+data collected from http://www.braeunig.us/space/atmos.htm (especially for the density between 1000km - 36000km altitude)

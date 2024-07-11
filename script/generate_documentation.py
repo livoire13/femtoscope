@@ -10,6 +10,11 @@ For pdoc, visit:
 https://github.com/mitmproxy/pdoc
 https://pdoc.dev/docs/pdoc.html
 
+Warning: be sure to use a pdoc version >= 14.5.1 as
+previous versions are subject to the Polyfill issue. See
+https://sansec.io/research/polyfill-supply-chain-attack
+https://github.com/advisories/GHSA-5vgj-ggm4-fg62
+
 """
 
 import pdoc

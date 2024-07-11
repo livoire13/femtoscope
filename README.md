@@ -5,7 +5,7 @@ The *femtoscope* software was written as part of Hugo Lévy's PhD thesis (2021-2
 ## Installation from YAML
 
 YAML (stands for YAML Ain't Markup Language) is a serialization
-language which is often used asa format for configuration files.
+language which is often used as a format for configuration files.
 Anaconda allows the creation of an environment file (with .yml
 extension) in order to share with others.
 ```console

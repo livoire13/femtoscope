@@ -27,20 +27,20 @@ This will create femtoscope.yml at current location. This file can then be used 
    and make sure femtoscope appears in the list. This process is likely to take several tens of minutes.
    
 **note**
-The project uses Python 3.9.7
+The project uses Python >= 3.9
 
 ## Main dependencies
 
-- Python 3.9.16
-- meshio 4.4.6
-- numpy 1.25.0
-- pandas 1.5.3
-- pyevtk 1.5.0
-- pyvista 0.38.3
-- scipy 1.10.1
-- sfepy 2023.2
-- pdoc 14.5.1
-- gmsh  4.11.1
+- Python >= 3.9
+- meshio == 4.4.6 (read & write mesh files)
+- numpy < 2 (sfepy is not yet compatible with numpy 2.x)
+- pandas >= 1.5.3
+- pyevtk (creation of `.vtk` files)
+- pyvista (visualization of FEM results)
+- scipy
+- sfepy >= 2023.2 (FEM engine)
+- pdoc >= 14.5.1 (patch against polyfill.io malicious CDN)
+- gmsh == 4.11.1 (some features of *femtoscope* are broken in newer versions)
 	
 ## Tree structure
 

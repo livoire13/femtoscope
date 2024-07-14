@@ -1229,7 +1229,7 @@ def adjust_boundary_nodes(mesh_name_ref, mesh_name_mod,
 
     ind_ref, ind_mod = (
         np.where(mesh_ref.point_data['node_groups'] == boundary_tag_ref)[0],
-        np.where(mesh_ref.point_data['node_groups'] == boundary_tag_mod)[0]
+        np.where(mesh_mod.point_data['node_groups'] == boundary_tag_mod)[0]
     )
     assert len(ind_ref) == len(ind_mod), "Number of DOFs does not match!"
 

@@ -46,7 +46,7 @@ class ResultsPostProcessor:
             return self.wf_int.field
 
     @property
-    def coors_int(self) ->np.ndarray:
+    def coors_int(self) -> np.ndarray:
         """Coordinates of the DOFs in the interior domain."""
         if self.wf_int is not None:
             return self.field_int.coors

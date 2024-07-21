@@ -155,7 +155,7 @@ class LaplacianMaterials(AbstractMaterials):
     @check_mode_qp
     def mat1dext(ts, coors, mode=None, Rc=None, **kwargs):
         eta = coors.squeeze()
-        val = 20 * eta ** 3 / Rc ** 2 * (1 - eta / Rc)
+        val = eta ** 4 / Rc ** 2 * (5 - 4 * eta / Rc)
         return {'val': val.reshape(-1, 1, 1)}
 
     # 2D polar coordinates material functions

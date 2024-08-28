@@ -92,9 +92,11 @@ class AbstractLinear(ABC):
             self.subomegas_number = 1
 
     def _append_density_pre_terms(self, pre_terms: List[PreTerm],
-                                  density_dict: dict, prefactor: float):
-        """
+                                  density_dict: dict, prefactor: float,
+                                  term_name='dw_volume_integrate'):
+        r"""
         Append density terms to the `pre_terms` list.
+            $$ \int_{\Omega} \rho v \mathrm{d} \mathbf{x} $$
 
         Parameters
         ----------
@@ -106,6 +108,8 @@ class AbstractLinear(ABC):
             ('subomega', 300), ('subomega', 301), ('omega', -1), etc.
         prefactor : float
             Constant weighting the density terms.
+        term_name : str
+            Name of the Sfepy term. The default is 'dw_volume_integrate'
 
         Notes
         -----
@@ -120,7 +124,7 @@ class AbstractLinear(ABC):
             rhomat = DensityMaterials()
             mat_kwargs = {'rho': rho, 'Rc': self.Rc}
             mat = rhomat.get_material(self.dim, coorsys=self.coorsys, tag='int')
-            t = PreTerm('dw_volume_integrate', tag='cst', prefactor=prefactor,
+            t = PreTerm(term_name, tag='cst', prefactor=prefactor,
                         region_key=region_key, mat=mat, mat_kwargs=mat_kwargs)
             pre_terms.append(t)
 
@@ -460,8 +464,10 @@ class Chameleon(AbstractNonLinear):
         else:
             sol_bounds = [phi_min, phi_max]
 
+        # Initial guess dictionary
         initial_guess_dict = self._create_initial_guess_dict(guess)
 
+        # Solver instantiation
         solver = NonLinearSolver(self.wf_dict, initial_guess_dict,
                                  sol_bounds=sol_bounds, relax_method='constant',
                                  relax_param=relax_param,
@@ -540,11 +546,13 @@ class Chameleon(AbstractNonLinear):
         alpha = self.param_dict['alpha']
         npot = self.param_dict['npot']
 
+        # Laplacian term
         lapmat = LaplacianMaterials()
         mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
         t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
         t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha)
 
+        # Nonlinear terms
         nlmat = NonLinearMaterials()
         matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
         t2 = PreTerm('dw_volume_dot', mat=matnl, tag='mod', prefactor=npot + 1,
@@ -554,6 +562,8 @@ class Chameleon(AbstractNonLinear):
             mat_kwargs={'nl_fun': lambda x: x ** (-(npot + 1))})
 
         pre_terms = [t1, t2, t3]
+
+        # Density terms
         self._append_density_pre_terms(pre_terms, density_dict, 1.0)
 
         return pre_terms
@@ -566,6 +576,7 @@ class Chameleon(AbstractNonLinear):
         npot = self.param_dict['npot']
         Rc = self.Rc
 
+        # Laplacian terms
         lapmat = LaplacianMaterials()
         mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
         t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
@@ -577,6 +588,7 @@ class Chameleon(AbstractNonLinear):
         t2 = PreTerm('dw_s_dot_mgrad_s', mat=mat2, tag='cst', prefactor=alpha,
                      mat_kwargs={'Rc': Rc})
 
+        # Nonlinear terms
         nlmat = NonLinearMaterials()
         matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
         t3 = PreTerm('dw_volume_dot', mat=matnl, tag='mod', prefactor=npot + 1,
@@ -589,6 +601,7 @@ class Chameleon(AbstractNonLinear):
 
         pre_terms = [t1, t2, t3, t4]
 
+        # Density term
         if not self.vacuum_exterior:  # One density term
             rhomat = DensityMaterials()
             mat5 = rhomat.get_material(
@@ -605,16 +618,19 @@ class Chameleon(AbstractNonLinear):
         alpha = self.param_dict['alpha']
         npot = self.param_dict['npot']
 
+        # Laplacian term
         lapmat = LaplacianMaterials()
         mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
         t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
         t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha)
 
+        # Nonlinear term
         nlmat = NonLinearMaterials()
         matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
         t2 = PreTerm('dw_volume_integrate', mat=matnl, tag='mod', prefactor=-1,
                      mat_kwargs={'nl_fun': lambda x: x ** (-(npot + 1))})
 
+        # Surface term (interior domain boundary)
         surfmat = LapSurfaceMaterials()
         mat3 = surfmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
         t3 = PreTerm('dw_surface_flux', mat=mat3, tag='cst', prefactor=-alpha,
@@ -622,6 +638,7 @@ class Chameleon(AbstractNonLinear):
 
         pre_terms = [t1, t2, t3]
 
+        # Density terms
         self._append_density_pre_terms(pre_terms, density_dict, 1.0)
 
         return pre_terms
@@ -629,22 +646,196 @@ class Chameleon(AbstractNonLinear):
 
 class Symmetron(AbstractNonLinear):
     r"""
-    Chameleon field equation reading
+    Symmetron field equation reading
     $$ \alpha \Delta u = (\rho(x)-\beta) u + u^3 $$
     """
 
-    def set_default_solver(self, *args, **kwargs):
-        pass
+    def set_default_solver(self, relax_param=0.8, guess='zero',
+                           region_key_int=None, region_key_ext=None):
+        """
+        Set `default_solver` attribute of a chameleon problem by creating a
+        NonLinearSolver instance based on user provided input and hard coded
+        default parameters.
 
-    def _create_pre_terms_res(self, density_dict: dict) -> List[PreTerm]:
-        pass
+        Parameters
+        ----------
+        relax_param : float, optional
+            Relaxation parameter. The default is 0.8.
+        guess : Union[str, dict]
+            Ways of specifying the initial guess
+            - 'zero' (str) initializes the symmetron field to zero everywhere.
+            - initial_guess_dict (dict) is ready to be passed to NonLinearSolver
+            constructor. Dictionary with keys ('int', 'ext') containing the
+            initial guess as numpy 1d-arrays.
+        region_key_int : tuple
+            Key of the connecting region in the interior domain. Mandatory
+            parameter for two-weak-form problems.
+        region_key_ext : tuple
+            Key of the connecting region in the exterior domain. Mandatory
+            parameter for two-weak-form problems.
+
+        """
+
+        # Initial guess dictionary
+        initial_guess_dict = self._create_initial_guess_dict(guess)
+
+        # Solver instantiation
+        solver = NonLinearSolver(self.wf_dict, initial_guess_dict,
+                                 sol_bounds=None, relax_method='constant',
+                                 relax_param=relax_param,
+                                 region_key_int=region_key_int,
+                                 region_key_ext=region_key_ext)
+
+        # Link with nonlinear_monitor
+        if self.default_monitor is not None:
+            self.default_monitor.link_monitor_to_solver(solver)
+
+        self.default_solver = solver
+
+    def _create_initial_guess_dict(self, guess: Union[str, dict]) -> dict:
+        """
+        Create the `initial_guess_dict` argument needed for NonLinearSolver
+        constructor (see `set_default_solver` docstring).
+
+        Returns
+        -------
+        dict
+            The initial_guess_dict argument.
+        """
+
+        if isinstance(guess, dict):
+            return guess
+        if guess == 'zero':
+            initial_guess_dict = {}
+            for key, wf in zip(('int', 'ext'), (self.wf_int, self.wf_ext)):
+                if wf is None: continue
+                size = wf.field.coors.shape[0]
+                initial_guess_dict[key] = np.zeros(size)
+            return initial_guess_dict
+        else:
+            raise NotImplementedError(f"Method '{guess}' for setting the "
+                                      f"initial guess is not implemented!")
 
     def _create_pre_terms_int(self, density_dict: dict) -> List[PreTerm]:
-        pass
+
+        # Get symmetron parameters
+        alpha = self.param_dict['alpha']
+        beta = self.param_dict['beta']
+
+        # Laplacian term
+        lapmat = LaplacianMaterials()
+        mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
+        t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha)
+
+        # Nonlinear terms
+        nlmat = NonLinearMaterials()
+        matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t2 = PreTerm('dw_volume_dot', mat=matnl, tag='mod', prefactor=3,
+                     mat_kwargs={'nl_fun': lambda x: x ** 2})
+
+        t3 = PreTerm('dw_volume_integrate', mat=matnl, tag='mod', prefactor=-2,
+                     mat_kwargs={'nl_fun': lambda x: x ** 3})
+
+        # Mass term
+        massmat = DensityMaterials()
+        mat4 = massmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t4 = PreTerm('dw_volume_dot', mat=mat4, tag='cst', prefactor=-beta ** 2,
+                     mat_kwargs={'rho': 1.0})
+
+        pre_terms = [t1, t2, t3, t4]
+
+        # Density terms
+        self._append_density_pre_terms(pre_terms, density_dict, 1.0,
+                                       term_name='dw_volume_dot')
+
+        return pre_terms
 
     def _create_pre_terms_ext(
             self, density: Union[None, Callable, float]) -> List[PreTerm]:
-        pass
+
+        # Get symmetron parameters
+        alpha = self.param_dict['alpha']
+        beta = self.param_dict['beta']
+        Rc = self.Rc
+
+        # Laplacian terms
+        lapmat = LaplacianMaterials()
+        mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
+        t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
+        t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha,
+                     mat_kwargs={'Rc': Rc})
+
+        advmat = LapAdvectionMaterials()
+        mat2 = advmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
+        t2 = PreTerm('dw_s_dot_mgrad_s', mat=mat2, tag='cst', prefactor=alpha,
+                     mat_kwargs={'Rc': Rc})
+
+        # Nonlinear terms
+        nlmat = NonLinearMaterials()
+        matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
+        t3 = PreTerm('dw_volume_dot', mat=matnl, tag='mod', prefactor=3,
+                     mat_kwargs={'Rc': Rc, 'nl_fun': lambda x: x ** 2})
+
+        t4 = PreTerm('dw_volume_integrate', mat=matnl, tag='mod', prefactor=-2,
+                     mat_kwargs={'Rc': Rc, 'nl_fun': lambda x: x ** 3})
+
+        # Mass term
+        massmat = DensityMaterials()
+        mat4 = massmat.get_material(self.dim, coorsys=self.coorsys, tag='ext')
+        t5 = PreTerm('dw_volume_dot', mat=mat4, tag='cst', prefactor=-beta ** 2,
+                     mat_kwargs={'rho': 1.0})
+
+        pre_terms = [t1, t2, t3, t4, t5]
+
+        # Density terms
+        if not self.vacuum_exterior:  # One density term
+            rhomat = DensityMaterials()
+            mat6 = rhomat.get_material(
+                self.dim, coorsys=self.coorsys, tag='ext')
+            t6 = PreTerm('dw_volume_dot', tag='cst', prefactor=1.0,
+                         mat=mat6, mat_kwargs={'Rc': Rc, 'rho': density})
+            pre_terms.append(t6)
+
+        return pre_terms
+
+    def _create_pre_terms_res(self, density_dict: dict) -> List[PreTerm]:
+
+        # Get symmetron parameters
+        alpha = self.param_dict['alpha']
+        beta = self.param_dict['beta']
+
+        # Laplacian term
+        lapmat = LaplacianMaterials()
+        mat1 = lapmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
+        t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha)
+
+        # Nonlinear term
+        nlmat = NonLinearMaterials()
+        matnl = nlmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t2 = PreTerm('dw_volume_integrate', mat=matnl, tag='mod', prefactor=1.0,
+                     mat_kwargs={'nl_fun': lambda x: x ** 3})
+
+        # Surface term (interior domain boundary)
+        surfmat = LapSurfaceMaterials()
+        mat3 = surfmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t3 = PreTerm('dw_surface_flux', mat=mat3, tag='cst', prefactor=-alpha,
+                     region_key=('gamma', -1))
+
+        # Mass term
+        massmat = DensityMaterials()
+        mat4 = massmat.get_material(self.dim, coorsys=self.coorsys, tag='int')
+        t4 = PreTerm('dw_volume_dot', mat=mat4, tag='cst', prefactor=-beta ** 2,
+                     mat_kwargs={'rho': 1.0})
+
+        pre_terms = [t1, t2, t3, t4]
+
+        # Density terms
+        self._append_density_pre_terms(pre_terms, density_dict, 1.0,
+                                       term_name='dw_volume_dot')
+
+        return pre_terms
 
 
 def _get_diffusion_term_name(dim, coorsys):

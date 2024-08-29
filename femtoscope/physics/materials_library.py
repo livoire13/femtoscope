@@ -58,10 +58,18 @@ class AbstractMaterials(ABC):
         _check_parameters(dim, coorsys, tag)  # perform checks
 
         if dim == 1:  # Dimension 1
-            if tag == 'int':
-                func = self.mat1dint
+            if coorsys == 'polar':
+                if tag == 'int':
+                    func = self.mat1dpolint
+                else:
+                    func = self.mat1dpolext
+            elif coorsys == 'cartesian':
+                if tag == 'int':
+                    func = self.mat3dint
+                else:
+                    func = self.mat1dcartext
             else:
-                func = self.mat1dext
+                raise NotImplementedError
 
         elif dim == 2:  # Dimension 2
             if coorsys == 'polar':
@@ -74,13 +82,11 @@ class AbstractMaterials(ABC):
                     func = self.mat2dcylint
                 else:
                     func = self.mat2dcylext
-
             elif coorsys == 'cartesian':
                 if tag == 'int':
                     func = self.mat3dint
                 else:
-                    raise NotImplementedError
-
+                    func = self.mat2dcartext
             else:
                 raise ValueError(f"Invalid coordinate system '{coorsys}'.")
 
@@ -97,12 +103,17 @@ class AbstractMaterials(ABC):
 
     @staticmethod
     @abstractmethod
-    def mat1dint(*args, **kwargs):
+    def mat1dpolint(*args, **kwargs):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def mat1dext(*args, **kwargs):
+    def mat1dpolext(*args, **kwargs):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def mat1dcartext(*args, **kwargs):
         raise NotImplementedError
 
     @staticmethod
@@ -127,6 +138,11 @@ class AbstractMaterials(ABC):
 
     @staticmethod
     @abstractmethod
+    def mat2dcartext(*args, **kwargs):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
     def mat3dint(*args, **kwargs):
         raise NotImplementedError
 
@@ -146,16 +162,23 @@ class LaplacianMaterials(AbstractMaterials):
     # 1D material functions
     @staticmethod
     @check_mode_qp
-    def mat1dint(ts, coors, mode=None, **kwargs):
+    def mat1dpolint(ts, coors, mode=None, **kwargs):
         r = coors.squeeze()
         val = r ** 2
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
     @check_mode_qp
-    def mat1dext(ts, coors, mode=None, Rc=None, **kwargs):
+    def mat1dpolext(ts, coors, mode=None, Rc=None, **kwargs):
         eta = coors.squeeze()
         val = eta ** 4 / Rc ** 2 * (5 - 4 * eta / Rc)
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
+    def mat1dcartext(ts, coors, mode=None, Rc=None, **kwargs):
+        xi = coors.squeeze()
+        val = (xi / Rc) ** 4 * (3 - 2 * abs(xi) / Rc)
         return {'val': val.reshape(-1, 1, 1)}
 
     # 2D polar coordinates material functions
@@ -194,6 +217,13 @@ class LaplacianMaterials(AbstractMaterials):
         val = norm2 ** 2 / Rc ** 4 * abs(xi) * (7 - 6 * norm / Rc)
         return {'val': val.reshape(-1, 1, 1)}
 
+    @staticmethod
+    @check_mode_qp
+    def mat2dcartext(ts, coors, mode=None, Rc=None, **kwargs):
+        norm = np.linalg.norm(coors, axis=1)
+        val = (norm / Rc) ** 4 * (5 - 4 * norm / Rc)
+        return {'val': val.reshape(-1, 1, 1)}
+
     # 3D cartesian coordinates material functions
     mat3dint = None
 
@@ -214,11 +244,18 @@ class LaplacianMaterialsVacuum(LaplacianMaterials):
 
     Notes
     -----
-    Overrides methods mat1dext, mat2dpolext, mat2dcylext, mat3dext from parent
-    class.
+    Overrides methods mat1dpolext, mat2dpolext, mat2dcylext, mat2dcartext,
+    mat3dext from parent class.
     """
 
-    mat1dext = None
+    mat1dpolext = None
+
+    @staticmethod
+    @check_mode_qp
+    def mat1dcartext(ts, coors, mode=None, Rc=None, **kwargs):
+        xi = coors.squeeze()
+        val = (xi / Rc) ** 2
+        return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
     @check_mode_qp
@@ -239,6 +276,8 @@ class LaplacianMaterialsVacuum(LaplacianMaterials):
         val = norm2 / Rc ** 2 * abs(xi) * (5 - 4 * norm / Rc)
         return {'val': val.reshape(-1, 1, 1)}
 
+    mat2dcartext = None
+
     @staticmethod
     @check_mode_qp
     def mat3dext(ts, coors, mode=None, Rc=None, **kwargs):
@@ -255,16 +294,23 @@ class LapAdvectionMaterials(AbstractMaterials):
     the PDE in the exterior domain.
     """
 
-    mat1dint = None
+    mat1dpolint = None
     mat2dpolint = None
     mat2dcylint = None
     mat3dint = None
 
     @staticmethod
     @check_mode_qp
-    def mat1dext(ts, coors, mode=None, Rc=None, **kwargs):
+    def mat1dpolext(ts, coors, mode=None, Rc=None, **kwargs):
         eta = coors.squeeze()
         val = 20 * eta ** 3 / Rc ** 2 * (1 - eta / Rc)
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
+    def mat1dcartext(ts, coors, mode=None, Rc=None, **kwargs):
+        xi = coors.squeeze()
+        val = 6 * xi ** 3 / Rc ** 5 * (Rc - abs(xi))
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
@@ -288,6 +334,17 @@ class LapAdvectionMaterials(AbstractMaterials):
 
     @staticmethod
     @check_mode_qp
+    def mat2dcartext(ts, coors, mode=None, Rc=None, **kwargs):
+        val = np.zeros((coors.shape[0], 2, 1))
+        xi, eta = coors[:, 0], coors[:, 1]
+        norm2 = xi ** 2 + eta ** 2
+        norm = sqrt(norm2)
+        val[:, 0, 0] = 20 * norm2 / Rc ** 5 * (Rc - norm) * xi
+        val[:, 1, 0] = 20 * norm2 / Rc ** 5 * (Rc - norm) * eta
+        return {'val': val}
+
+    @staticmethod
+    @check_mode_qp
     def mat3dext(ts, coors, mode=None, Rc=None, **kwargs):
         val = np.zeros((coors.shape[0], 3, 1))
         xi, eta, zeta = coors[:, 0], coors[:, 1], coors[:, 2]
@@ -307,11 +364,12 @@ class LapAdvectionMaterialsVacuum(LapAdvectionMaterials):
 
     Notes
     -----
-    Overrides methods 'mat1dext', 'mat2dpolext', 'mat2dcylext', 'mat3dext' from
-    parent class.
+    Overrides methods 'mat1dpolext', 'mat1dcartext' 'mat2dpolext',
+    'mat2dcylext', 'mat2dcartext' 'mat3dext' from parent class.
     """
 
-    mat1dext = None
+    mat1dpolext = None
+    mat1dcartext = None
 
     @staticmethod
     @check_mode_qp
@@ -332,6 +390,8 @@ class LapAdvectionMaterialsVacuum(LapAdvectionMaterials):
         val[:, 1, 0] = 20 * abs(xi) / Rc ** 2 * (1 - norm / Rc) * eta
         return {'val': val}
 
+    mat2dcartext = None
+
     @staticmethod
     @check_mode_qp
     def mat3dext(ts, coors, mode=None, Rc=None, **kwargs):
@@ -350,15 +410,17 @@ class LapSurfaceMaterials(AbstractMaterials):
     arising from the Laplacian.
     """
 
-    mat1dext = None
+    mat1dpolext = None
+    mat1dcartext = None
     mat2dpolext = None
     mat2dcylext = None
+    mat2dcartext = None
     mat3dext = None
     mat3dint = None
 
     @staticmethod
     @check_mode_qp
-    def mat1dint(ts, coors, mode=None, **kwargs):
+    def mat1dpolint(ts, coors, mode=None, **kwargs):
         r = coors.squeeze()
         val = np.zeros((coors.shape[0], 1, 1))
         val[:, 0, 0] = r ** 2
@@ -390,7 +452,7 @@ class DensityMaterials(AbstractMaterials):
 
     @staticmethod
     @check_mode_qp
-    def mat1dint(ts, coors, mode=None, rho=None, **kwargs):
+    def mat1dpolint(ts, coors, mode=None, rho=None, **kwargs):
         if mode != 'qp': return
         r = coors.squeeze()
         if callable(rho): rho = rho(r)
@@ -399,10 +461,18 @@ class DensityMaterials(AbstractMaterials):
 
     @staticmethod
     @check_mode_qp
-    def mat1dext(ts, coors, mode=None, rho=None, Rc=None, **kwargs):
+    def mat1dpolext(ts, coors, mode=None, rho=None, Rc=None, **kwargs):
         eta = coors.squeeze()
         if callable(rho): rho = rho(eta)
         val = rho * Rc ** 2 * (5 - 4 * eta / Rc)
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
+    def mat1dcartext(ts, coors, mode=None, rho=None, Rc=None, **kwargs):
+        xi = coors.squeeze()
+        if callable(rho): rho = rho(xi)
+        val = rho * (3 - 2 * abs(xi) / Rc)
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
@@ -440,6 +510,14 @@ class DensityMaterials(AbstractMaterials):
 
     @staticmethod
     @check_mode_qp
+    def mat2dcartext(ts, coors, mode=None, rho=None, Rc=None, **kwargs):
+        if callable(rho): rho = rho(coors)
+        norm = np.linalg.norm(coors, axis=1)
+        val = (5 - 4 * norm / Rc) * rho
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
     def mat3dint(ts, coors, mode=None, rho=None, **kwargs):
         if callable(rho): rho = rho(coors)
         val = rho * np.ones(coors.shape[0], dtype=np.float64)
@@ -462,17 +540,25 @@ class NonLinearMaterials(AbstractMaterials):
 
     @staticmethod
     @check_mode_qp
-    def mat1dint(ts, coors, mode=None, vec_qp=None, nl_fun=None, **kwargs):
+    def mat1dpolint(ts, coors, mode=None, vec_qp=None, nl_fun=None, **kwargs):
         r = coors.squeeze()
         val = r ** 2 * nl_fun(vec_qp)
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
     @check_mode_qp
-    def mat1dext(
+    def mat1dpolext(
             ts, coors, mode=None, vec_qp=None, nl_fun=None, Rc=None, **kwargs):
         eta = coors.squeeze()
         val = Rc ** 2 * (5 - 4 * eta / Rc) * nl_fun(vec_qp)
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
+    def mat1dcartext(
+            ts, coors, mode=None, vec_qp=None, nl_fun=None, Rc=None, **kwargs):
+        xi = coors.squeeze()
+        val = (3 - 2 * abs(xi) / Rc) * nl_fun(vec_qp)
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod
@@ -504,6 +590,14 @@ class NonLinearMaterials(AbstractMaterials):
         xi, eta = coors[:, 0], coors[:, 1]
         norm = sqrt(xi ** 2 + eta ** 2)
         val = abs(xi) * (7 - 6 * norm / Rc) * nl_fun(vec_qp)
+        return {'val': val.reshape(-1, 1, 1)}
+
+    @staticmethod
+    @check_mode_qp
+    def mat2dcartext(
+            ts, coors, mode=None, vec_qp=None, nl_fun=None, Rc=None, **kwargs):
+        norm = np.linalg.norm(coors, axis=1)
+        val = (5 - 4 * norm / Rc) * nl_fun(vec_qp)
         return {'val': val.reshape(-1, 1, 1)}
 
     @staticmethod

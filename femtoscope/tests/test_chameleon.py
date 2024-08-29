@@ -192,7 +192,7 @@ def mesh2dcyl_ext():
         embed_origin=True, origin_rf=origin_rf)
 
 
-@pytest.mark.parametrize(('dim', 'coorsys'), [(1, None), (2, 'polar'),
+@pytest.mark.parametrize(('dim', 'coorsys'), [(1, 'polar'), (2, 'polar'),
                                               (2, 'cylindrical')])
 def test_chameleon(dim, coorsys):
     # Setup

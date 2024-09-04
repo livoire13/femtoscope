@@ -249,7 +249,7 @@ def test_mtx_vec_entries(fem_order):
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
-@pytest.mark.parametrize("fem_order", [1])
+@pytest.mark.parametrize("fem_order", [1, 2])
 def test_assign_periodic_bc(fem_order):
     """Test the assignment of periodic boundary conditions."""
 

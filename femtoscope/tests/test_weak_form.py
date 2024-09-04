@@ -31,7 +31,8 @@ def weak_form(fem_order):
         if mode != 'qp': return
         return {'val': abs(coors[:, 0]).reshape(coors.shape[0], 1, 1)}
 
-    pre_mesh = generate_mesh_from_geo('rectangle_test', param_dict={'size': 0.5})
+    pre_mesh = generate_mesh_from_geo(
+        'rectangle_test', param_dict={'size': 0.5})
     pre_term_300 = PreTerm('dw_laplace', region_key=('subomega', 300),
                            prefactor=5.0, mat=material)
     pre_term_301 = PreTerm('dw_laplace', region_key=('subomega', 301),
@@ -59,7 +60,8 @@ def sfepy_problem(fem_order):
 
     matf_func = Function('matf_func', matf)
     mat = Material('mat', kind='stationary', function=matf_func)
-    pre_mesh = generate_mesh_from_geo('rectangle_test', param_dict={'size': 0.5})
+    pre_mesh = generate_mesh_from_geo(
+        'rectangle_test', param_dict={'size': 0.5})
     mesh = Mesh.from_file(pre_mesh)
     domain = FEDomain('domain', mesh)
     omega = domain.create_region('Omega', 'all')
@@ -217,7 +219,8 @@ def test_fill_region_dict_from_dim_func():
 
 @pytest.mark.parametrize("fem_order", [1, 2])
 def test_mtx_vec_entries(fem_order):
-
+    """Test the correct assembly of matrices/vectors by comparing femtoscope's
+    outputs against the ones obtained with Sfepy's intended usage."""
     errors = []
     wf = weak_form(fem_order)
     sfepy_pb = sfepy_problem(fem_order)
@@ -244,3 +247,44 @@ def test_mtx_vec_entries(fem_order):
 
     # global assertion
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
+@pytest.mark.parametrize("fem_order", [1])
+def test_assign_periodic_bc(fem_order):
+    """Test the assignment of periodic boundary conditions."""
+
+    # Boundary parts (selection by function)
+    def left_boundary(coors, domain=None):
+        return np.where(coors[:, 0] < 1e-6)[0]
+    def right_boundary(coors, domain=None):
+        return np.where(coors[:, 0] > 1.0 - 1e-6)[0]
+    def bottom_boundary(coors, domain=None):
+        return np.where(coors[:, 1] < 1e-6)[0]
+    def top_boundary(coors, domain=None):
+        return np.where(coors[:, 1] > 1.0 - 1e-6)[0]
+
+    dim_func_entities = [(1, bottom_boundary, 200),
+                         (1, right_boundary, 201),
+                         (1, top_boundary, 202),
+                         (1, left_boundary, 203)]
+
+    pre_epbc_list = [[('facet', 200), ('facet', 202), 'match_x_line'],
+                     [('facet', 201), ('facet', 203), 'match_y_line']]
+
+    # Creation of the weak form with periodic boundary conditions
+    pre_mesh = generate_mesh_from_geo(
+        'square_periodic_test', param_dict={'size': 1.0}, show_mesh=False)
+    pre_term = PreTerm('dw_laplace', region_key=('omega', -1))
+    args_dict = {'dim': 2, 'pre_mesh': pre_mesh,
+                 'dim_func_entities': dim_func_entities,
+                 'pre_epbc_list': pre_epbc_list,
+                 'pre_terms': [pre_term],
+                 'fem_order': fem_order}
+    wf = WeakForm.from_scratch(args_dict)  # Creation of the weak form
+
+    wf.set_mtx_vec_no_bc()  # assembling the bc-free matrix/vector
+    wf.set_mtx_vec_bc_reduced()  # assembling the reduced matrix/vector
+
+    # The full matrix/vector cannot be assembled when epbc are used
+    with pytest.raises(NotImplementedError):
+        wf.set_mtx_vec_bc_full()

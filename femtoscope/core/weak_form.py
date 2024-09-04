@@ -18,10 +18,10 @@ import numpy as np
 
 from sfepy.base.base import Container
 import sfepy.discrete.fem
-from sfepy.discrete import (FieldVariable, Function, Integral, Materials,
-                            Variables)
+from sfepy.discrete import (FieldVariable, Function, Functions, Integral,
+                            Materials, Variables)
 from sfepy.discrete.conditions import (Conditions, EssentialBC,
-                                       LinearCombinationBC)
+                                       LinearCombinationBC, PeriodicBC)
 from sfepy.discrete.equations import Equation, Equations
 from sfepy.discrete.fem import FEDomain, Field, Mesh
 from sfepy.discrete.problem import Problem
@@ -29,7 +29,7 @@ from sfepy.terms.terms import Terms
 import sfepy.discrete.fem.periodic as per
 from sfepy.discrete.common.mappings import get_physical_qps
 
-from femtoscope.core import valid_topological_kinds_ebc
+from femtoscope.core import valid_topological_kinds_ebc, valid_matching_epbc
 from femtoscope.core.matrix_vector import MatrixVector
 from femtoscope.core.pre_term import PreTerm, is_matrix_term
 from femtoscope.inout.meshfactory import (make_absolute_mesh_name,
@@ -55,6 +55,10 @@ class WeakForm:
         keys: same as `region_dict`.
         values: dictionary with keys ('cst', 'mod') containing corresponding
         Sfepy's `EssentialBC` instances.
+    epbc_dict : dict
+        Dictionary of periodic boundary conditions with
+        keys: 'cst' and 'mod'.
+        values: list of `PeriodicBC` instances.
     pre_terms : list[PreTerm]
         List of `PreTerm` instances. Each 'pre_term' contains extra information
         with respect to Sfepy's `Term` instance.
@@ -87,6 +91,17 @@ class WeakForm:
 
     """
 
+    match_coors = Function('match_coors', per.match_coors)
+    match_x_line = Function('match_x_line', per.match_x_line)
+    match_y_line = Function('match_y_line', per.match_y_line)
+    match_z_line = Function('match_z_line', per.match_z_line)
+    match_x_plane = Function('match_x_plane', per.match_x_plane)
+    match_y_plane = Function('match_y_plane', per.match_y_plane)
+    match_z_plane = Function('match_z_plane', per.match_z_plane)
+    functions = Functions(
+        [match_coors, match_x_line, match_y_line, match_z_line,
+         match_x_plane, match_y_plane, match_z_plane])
+
     class Decorators:
         """Inner class for defining decorators."""
 
@@ -109,6 +124,7 @@ class WeakForm:
         self.dim = None
         self.region_dict = None
         self.ebc_dict = None
+        self.epbc_dict = None
         self.pre_terms = None
         self.fem_order = None
         self.pb_cst = None
@@ -177,6 +193,9 @@ class WeakForm:
             Dictionary that is used to assign some essential boundary conditions
             to some topological entities. Its keys are a subset of `region_dict`
             ones and its values are either numbers or functions.
+        pre_epbc_list : List[list]
+            List containing pairs of region keys and a matching keyword to form
+            periodic boundary conditions.
         fem_order : int, optional
             Finite Element approximation order. The default is 2.
         pre_terms : List[PreTerm]
@@ -198,6 +217,7 @@ class WeakForm:
         name = args_dict.get('name', 'wf')
         dim_func_entities = args_dict.get('dim_func_entities', [])
         pre_ebc_dict = args_dict.get('pre_ebc_dict', {})
+        pre_epbc_list = args_dict.get('pre_epbc_list', [])
         fem_order = args_dict.get('fem_order', 2)
         pre_terms = args_dict.get('pre_terms', [])
         is_exterior = args_dict.get('is_exterior')
@@ -227,6 +247,11 @@ class WeakForm:
         cls._check_pre_ebc_dict_format(pre_ebc_dict)
         wf_instance.ebc_dict = {}
         wf_instance.fill_ebc_dict(pre_ebc_dict)
+
+        # Periodic boundary conditions list
+        cls._check_pre_epbc_list_format(pre_epbc_list)
+        wf_instance.epbc_dict = {}
+        wf_instance.fill_epbc_dict(pre_epbc_list)
 
         # FEM order
         wf_instance.fem_order = fem_order
@@ -292,7 +317,6 @@ class WeakForm:
         attr_dict['fem_order'] = wf_int.fem_order
 
         # Preparation of LCBCs
-        match_coors = Function('match_coors', per.match_coors)
         connecting_regions = [wf_int.region_dict[region_key_int],
                               wf_ext.region_dict[region_key_ext]]
 
@@ -316,7 +340,7 @@ class WeakForm:
             lcbc = LinearCombinationBC(
                 'lc_cst', connecting_regions,
                 {'{}.all'.format(u_int_name) : '{}.all'.format(u_ext_name)},
-                match_coors, 'match_dofs')
+                cls.match_coors, 'match_dofs')
             lcbcs = Conditions([lcbc])
 
             # Create new Problem instance
@@ -399,12 +423,12 @@ class WeakForm:
 
         # Set problem(s)
         pb_cst_name = "pb_{}_cst".format(self.name)
-        self.pb_cst = Problem(
-            pb_cst_name, equations=Equations([eq_cst]), active_only=True)
+        self.pb_cst = Problem(pb_cst_name, equations=Equations([eq_cst]),
+                              active_only=True, functions=self.functions)
         if has_nonlinear_term:
             pb_mod_name = "pb_{}_mod".format(self.name)
-            self.pb_mod = Problem(
-                pb_mod_name, equations=Equations([eq_mod]), active_only=True)
+            self.pb_mod = Problem(pb_mod_name, equations=Equations([eq_mod]),
+                                  active_only=True, functions=self.functions)
 
         # Evaluate materials in physical quadrature points for the first time
         self.update_materials(tag='cst')
@@ -424,7 +448,8 @@ class WeakForm:
         for tag, pb in zip(tag_list, pb_list):
             ebcs = Conditions(
                 [pair_ebc[tag] for pair_ebc in list(self.ebc_dict.values())])
-            pb.set_bcs(ebcs=ebcs)
+            epbcs = Conditions(self.epbc_dict[tag])
+            pb.set_bcs(ebcs=ebcs, epbcs=epbcs)
             variables = pb.get_initial_state()
             pb.time_update()
             variables.apply_ebc()
@@ -633,6 +658,7 @@ class WeakForm:
         if pre_ebc_dict is None:
             pre_ebc_dict = {}
 
+        # Fill ebc_dict
         for key, val in pre_ebc_dict.items():
             ebc_pair = {'cst': None, 'mod': None}
             for tag in ['cst', 'mod']:
@@ -652,6 +678,40 @@ class WeakForm:
                 ebc_pair[tag] = ebc
 
             self.ebc_dict[key] = ebc_pair
+
+    def fill_epbc_dict(self, pre_epbc_list: List[list]):
+        """
+        Fill the 'epbc_dict' form user specified periodic boundary conditions.
+
+        Parameters
+        ----------
+        pre_epbc_list : List[list]
+            List containing pairs of region keys to form periodic boundary
+            conditions.
+        """
+
+        if pre_epbc_list is None:
+            pre_epbc_list = []
+
+        region_dict = self.region_dict
+
+        # Fill epbc_dict
+        for tag in ['cst', 'mod']:
+            epbc_list = []
+            for pre_epbc in pre_epbc_list:  # loop over all pairs of regions
+                epbc_name = 'epbc_{}{}-{}{}_{}'.format(pre_epbc[0][0],
+                                                       pre_epbc[0][1],
+                                                       pre_epbc[1][0],
+                                                       pre_epbc[1][1],
+                                                       tag)
+                unknown_name = self.get_unknown_name(tag)
+                regions = [region_dict[pre_epbc[0]], region_dict[pre_epbc[1]]]
+                epbc_list.append(PeriodicBC(
+                    epbc_name, regions,
+                    {'%s.all' % unknown_name: '%s.all' % unknown_name},
+                    match=pre_epbc[2]))
+
+            self.epbc_dict[tag] = epbc_list
 
     def fill_region_dict(self, domain: FEDomain, physical_group_ids: List[int],
                          dim_func_entities: List[tuple]):
@@ -934,7 +994,7 @@ class WeakForm:
 
     @classmethod
     def _check_pre_ebc_dict_format(cls, pre_ebc_dict: dict):
-        """Check that `ebc_dict` has the right format."""
+        """Check that `pre_ebc_dict` has the right format."""
         if pre_ebc_dict is None:
             pre_ebc_dict = {}
         for key, val in pre_ebc_dict.items():
@@ -947,6 +1007,26 @@ class WeakForm:
             if not isinstance(val, Number) and not callable(val):
                 raise ValueError("Values of 'pre_ebc_dict' must either be a "
                                  "single number or a function")
+
+    @classmethod
+    def _check_pre_epbc_list_format(cls, pre_epbc_list: list):
+        """Check that `pre_epbc_list` has the right format."""
+        if pre_epbc_list is None:
+            pre_epbc_list = []
+        for pre_epbc in pre_epbc_list:
+            if not isinstance(pre_epbc, list):
+                raise ValueError("Elements of 'pre_epbc_list' must be lists")
+            if len(pre_epbc) != 3:
+                raise ValueError("Elements of 'pre_epbc_list' must of length 2")
+            for region_key in pre_epbc[:-1]:
+                if len(region_key) != 2:
+                    raise ValueError("region keys must be tuple of length 2")
+                if region_key[0] not in valid_topological_kinds_ebc:
+                    raise ValueError(
+                        f"{region_key[0]} is not a valid kind for epbc")
+            if pre_epbc[-1] not in valid_matching_epbc:
+                raise ValueError(f"{pre_epbc[-1]} is not a valid matching key, "
+                                 f"must be in {valid_matching_epbc}")
 
     @staticmethod
     def _deplete_mat_datas(pb):

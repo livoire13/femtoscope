@@ -648,6 +648,11 @@ class Symmetron(AbstractNonLinear):
     r"""
     Symmetron field equation reading
     $$ \alpha \Delta u = (\rho(x)-\beta) u + u^3 $$
+
+    Notes
+    -----
+    The implementation could validated against the analytical solutions found in
+    https://doi.org/10.1103/PhysRevD.97.064015
     """
 
     def set_default_solver(self, relax_param=0.8, guess='zero',

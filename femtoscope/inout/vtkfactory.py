@@ -138,7 +138,7 @@ def create_connectivity_table(coors: np.ndarray):
     if coors.shape[1] == 2:  # Dimension = 2
         cells = Triangulation(coors[:, 0], coors[:, 1]).triangles
     else:  # Dimension = 3
-        cells = Delaunay(coors).vertices
+        cells = Delaunay(coors).simplices
     return cells
 
 

@@ -635,14 +635,11 @@ class NonLinearSolver(LinearSolver):
         """
 
         # Retrieve keyword arguments
-        ls_class = kwargs.get('ls_class', 'ScipyDirect')
-        ls_kwargs = kwargs.get('ls_kwargs', None)
         relax_param = kwargs.get('relax_param', self.default_relax_param)
         relax_method = kwargs.get('relax_method', 'constant')
 
         # Set parent class attributes (LinearSolver)
-        super().__init__(wf_dict, ls_class=ls_class,
-                         ls_kwargs=ls_kwargs, **kwargs)
+        super().__init__(wf_dict, **kwargs)
 
         # Perform checks on the inputs
         self._check_initial_guess_dict(initial_guess_dict)

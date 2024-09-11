@@ -65,9 +65,10 @@ class AbstractLinear(ABC):
         wf = WeakForm.from_scratch(partial_args_dict)
         self.wf_ext = wf
 
-    def set_default_solver(self, region_key_int=None, region_key_ext=None):
-        ls_class = 'ScipyDirect'
-        ls_kwargs = {'eps_a': 1e-8, 'eps_r': 1e-8}
+    def set_default_solver(self, region_key_int=None, region_key_ext=None,
+                           **kwargs):
+        ls_class = kwargs.get('ls_class', 'ScipyDirect')
+        ls_kwargs = kwargs.get('ls_kwargs', {'eps_a': 1e-8, 'eps_r': 1e-8})
         solver = LinearSolver(self.wf_dict, ls_class=ls_class,
                               ls_kwargs=ls_kwargs,
                               region_key_int=region_key_int,
@@ -425,7 +426,7 @@ class Chameleon(AbstractNonLinear):
     """
 
     def set_default_solver(self, relax_param=0.8, guess='min_pot',
-                           region_key_int=None, region_key_ext=None):
+                           region_key_int=None, region_key_ext=None, **kwargs):
         """
         Set `default_solver` attribute of a chameleon problem by creating a
         NonLinearSolver instance based on user provided input and hard coded
@@ -472,7 +473,8 @@ class Chameleon(AbstractNonLinear):
                                  sol_bounds=sol_bounds, relax_method='constant',
                                  relax_param=relax_param,
                                  region_key_int=region_key_int,
-                                 region_key_ext=region_key_ext)
+                                 region_key_ext=region_key_ext,
+                                 **kwargs)
 
         # Link with nonlinear_monitor
         if self.default_monitor is not None:
@@ -656,7 +658,7 @@ class Symmetron(AbstractNonLinear):
     """
 
     def set_default_solver(self, relax_param=0.8, guess='zero',
-                           region_key_int=None, region_key_ext=None):
+                           region_key_int=None, region_key_ext=None, **kwargs):
         """
         Set `default_solver` attribute of a chameleon problem by creating a
         NonLinearSolver instance based on user provided input and hard coded
@@ -689,7 +691,8 @@ class Symmetron(AbstractNonLinear):
                                  sol_bounds=None, relax_method='constant',
                                  relax_param=relax_param,
                                  region_key_int=region_key_int,
-                                 region_key_ext=region_key_ext)
+                                 region_key_ext=region_key_ext,
+                                 **kwargs)
 
         # Link with nonlinear_monitor
         if self.default_monitor is not None:

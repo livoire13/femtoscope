@@ -390,7 +390,7 @@ class WeakForm:
         field = Field.from_args(field_name, np.float64, 'scalar',
                                 self.region_dict[('omega', -1)],
                                 approx_order=self.fem_order, space='H1',
-                                poly_space_base='lagrange')
+                                poly_space_basis='lagrange')
 
         u_cst = FieldVariable(self.get_unknown_name('cst'), 'unknown', field)
         v_cst = FieldVariable(self.get_test_name('cst'), 'test', field,

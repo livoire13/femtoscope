@@ -14,7 +14,7 @@ dependencies:
   - numpy<2
   - sympy
   - pyqt
-  - sfepy
+  - sfepy>=2024.3
   - matplotlib
   - pandas
   - pyflakes

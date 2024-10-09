@@ -38,7 +38,7 @@ The project uses Python >= 3.9
 - pyevtk (creation of `.vtk` files)
 - pyvista (visualization of FEM results)
 - scipy
-- sfepy >= 2023.2 (FEM engine)
+- sfepy >= 2024.3 (FEM engine)
 - pdoc >= 14.5.1 (patch against polyfill.io malicious CDN)
 - gmsh == 4.11.1 (some features of *femtoscope* are broken in newer versions)
 	

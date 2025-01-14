@@ -87,8 +87,8 @@ class AbstractLinear(ABC):
     def _set_subomegas_number(self, pre_mesh: Union[str, Mesh]):
         if self.subomegas_number is not None: return
         if isinstance(pre_mesh, str):
-            self.subomegas_number = len(
-                read_physical_groups_from_mesh_file(pre_mesh))
+            pg = np.array(read_physical_groups_from_mesh_file(pre_mesh))
+            self.subomegas_number = sum(pg >= 300)
         else:
             self.subomegas_number = 1
 

@@ -1258,7 +1258,9 @@ def adjust_boundary_nodes(mesh_name_ref, mesh_name_mod,
 def split_spheres_from_mesh(mesh_name, Rcut, verbose=False):
     """
     Split two meshed spheres that are geometrically separable by a hyperplane
-    into two distinct mesh files. The original mesh is then deleted.
+    into two distinct mesh files. The original mesh is then deleted. The 
+    original mesh must have gone through the `convert_mesh_for_sfepy` routine
+    before being processed by `split_spheres_from_mesh`!
 
     Parameters
     ----------
@@ -1291,8 +1293,8 @@ def split_spheres_from_mesh(mesh_name, Rcut, verbose=False):
 
     # Classify nodes belonging to sphere_int and sphere_ext
     norms = np.linalg.norm(data[0], axis=1)
-    idx_node_int = np.where(norms < Rcut + 1)[0]
-    idx_node_ext = np.where(norms > Rcut + 1)[0]
+    idx_node_int = np.where(norms < 1.5 * Rcut)[0]
+    idx_node_ext = np.where(norms > 1.5 * Rcut)[0]
 
     # Sort out data structures according to node class
     offset = np.array([3 * Rcut, 0, 0]).reshape(1, 3)

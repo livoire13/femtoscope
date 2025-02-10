@@ -467,10 +467,14 @@ class Chameleon(AbstractNonLinear):
 
         # Initial guess dictionary
         initial_guess_dict = self._create_initial_guess_dict(guess)
+        
+        # Relaxation method
+        relax_method = kwargs.pop('relax_method', 'constant')
 
         # Solver instantiation
         solver = NonLinearSolver(self.wf_dict, initial_guess_dict,
-                                 sol_bounds=sol_bounds, relax_method='constant',
+                                 sol_bounds=sol_bounds,
+                                 relax_method=relax_method,
                                  relax_param=relax_param,
                                  region_key_int=region_key_int,
                                  region_key_ext=region_key_ext,
@@ -685,10 +689,13 @@ class Symmetron(AbstractNonLinear):
 
         # Initial guess dictionary
         initial_guess_dict = self._create_initial_guess_dict(guess)
+        
+        # Relaxation method
+        relax_method = kwargs.pop('relax_method', 'constant')
 
         # Solver instantiation
         solver = NonLinearSolver(self.wf_dict, initial_guess_dict,
-                                 sol_bounds=None, relax_method='constant',
+                                 sol_bounds=None, relax_method=relax_method,
                                  relax_param=relax_param,
                                  region_key_int=region_key_int,
                                  region_key_ext=region_key_ext,

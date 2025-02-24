@@ -4,32 +4,32 @@ channels:
   - defaults
 dependencies:
   - python=3.9
+  - colorcet
+  - cython
+  - h5py
+  - m2w64-gcc  # Comment for Linux use
+  - m2w64-gcc-fortran  # Comment for Linux use
+  - m2w64-gcc-libs  # Comment for Linux use
+  - m2w64-gcc-libs-core  # Comment for Linux use
+  - matplotlib
+  - meshio==4.4.6
+  - numpy<2
+  - pandas
+  - pip
+  - psutil
+  - pyevtk
+  - pyflakes
+  - pygments
+  - pyqt
+  - pyshtools
   - pytables
   - pytest
-  - psutil
-  - pyshtools
-  - h5py
-  - pyevtk
-  - pip
-  - numpy<2
-  - sympy
-  - pyqt
-  - sfepy>=2024.3
-  - matplotlib
-  - pandas
-  - pyflakes
-  - scipy
-  - colorcet
-  - pygments
-  - meshio==4.4.6
-  - m2w64-gcc
-  - m2w64-gcc-fortran
-  - m2w64-gcc-libs
-  - m2w64-gcc-libs-core
-  - cython
-  - pytest
+  - python-mumps
   - pyvista
+  - sfepy>=2024.3
+  - scipy
+  - sympy
   - pip:
     - gmsh==4.11.1
-    - pdoc>=14.5.1
     - jax>=0.4.26
+    - pdoc>=14.5.1

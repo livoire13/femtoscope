@@ -1108,7 +1108,7 @@ class NonLinearSolver(LinearSolver):
         self._write_linesearch_message(optim_res)
 
     def _dwindle_relaxation(self):
-        pass
+        raise NotImplementedError("dwindle relaxation is not implemented yet!")
 
     def _write_pause_message(self, pause_iter_num):
         """Write pause message in 'solve' method."""

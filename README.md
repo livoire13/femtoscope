@@ -1,21 +1,16 @@
 ![](images/logo.png)
 
-The *femtoscope* software was written as part of Hugo Lévy's PhD thesis (2021-2024). This Python code can be used to investigate different models of modified gravity within complex geometries on unbounded domains.
+The *femtoscope* software was written as part of [Hugo Lévy's PhD thesis](https://theses.hal.science/tel-04789073v1/document) (2021-2024). This Python code can be used to investigate different models of modified gravity within complex geometries on unbounded domains.
 
-## Installation from YAML
+## Conda virtual environment
 
-YAML (stands for YAML Ain't Markup Language) is a serialization
-language which is often used as a format for configuration files.
-Anaconda allows the creation of an environment file (with .yml
-extension) in order to share with others.
-```console
->> conda env export --name femtoscope > femtoscope.yml
-```
-This will create femtoscope.yml at current location. This file can then be used by another Anaconda user to re-create the same environment. The steps to follow (from official conda online documentation) are:
+It is recommended to run *femtoscope* on a dedicated virtual environment. The `femtoscope.yml` file can be used to automate the creation of a conda environment as follows:
+
 1) Create the environment
 	```console
 	>> conda env create -f femtoscope.yml
 	```
+	Note that this process is likely to take several tens of minutes.
 2) Activate the new environment
 	```console
 	>> conda activate femtoscope
@@ -24,7 +19,7 @@ This will create femtoscope.yml at current location. This file can then be used 
 	```console
     >> conda env list
 	```
-   and make sure femtoscope appears in the list. This process is likely to take several tens of minutes.
+   and make sure femtoscope appears in the list.
    
 **note**
 The project uses Python >= 3.9
@@ -69,6 +64,9 @@ The project uses Python >= 3.9
 └───tutorials	# hands-on notebooks
 ```
 
+## UML Diagram
+
+![](images/uml-femtoscope.svg)
 
 ## Citing
 
@@ -87,4 +85,4 @@ If you would like to cite *femtoscope* in a paper or presentation, please use th
 
 ## Generate documentation
 
-The documentation is generated using pdoc by running the Python script "generate_documentation.py" located in the "script" directory.
+The documentation is generated using pdoc by running the Python script "generate_documentation.py" located in the "script" directory. Additional information about *femtoscope* can be found in [Hugo Lévy's PhD thesis](https://theses.hal.science/tel-04789073v1/document), chapter 4.

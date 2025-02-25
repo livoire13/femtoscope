@@ -1,4 +1,4 @@
-![](images/logo.png)
+![](femtoscope/images/logo.png)
 
 The *femtoscope* software was written as part of [Hugo Lévy's PhD thesis](https://theses.hal.science/tel-04789073v1/document) (2021-2024). This Python code can be used to investigate different models of modified gravity within complex geometries on unbounded domains.
 
@@ -66,7 +66,7 @@ The project uses Python >= 3.9
 
 ## UML Diagram
 
-![](images/uml-femtoscope.svg)
+![](femtoscope/images/uml-femtoscope.svg)
 
 ## Citing
 

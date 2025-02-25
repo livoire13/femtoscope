@@ -22,11 +22,10 @@ direct solvers produce accurate solution.
 
 """
 
-import os
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 from numpy import pi, sqrt
 
 from femtoscope.core.pre_term import PreTerm
@@ -34,7 +33,6 @@ from femtoscope.core.solvers import LinearSolver
 from femtoscope.core.weak_form import WeakForm
 from femtoscope.inout.meshfactory import MeshingTools
 from femtoscope.misc.analytical import potential_ellipsoid
-
 
 sa = 2.0
 sc = 1.0

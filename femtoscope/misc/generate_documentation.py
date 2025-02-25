@@ -17,7 +17,6 @@ https://github.com/advisories/GHSA-5vgj-ggm4-fg62
 
 """
 
-from pathlib import Path
 import os
 import shutil
 
@@ -26,11 +25,11 @@ import pdoc
 import femtoscope
 from femtoscope import FEMTOSCOPE_BASE_DIR
 from femtoscope import IMAGES_DIR
+from femtoscope import INSTALL_DIR
 
 if __name__ == '__main__':
 
-    module_path = Path(femtoscope.__file__).parent
-    output_directory = Path(femtoscope.__file__).parent.parent / 'doc'
+    output_directory = FEMTOSCOPE_BASE_DIR / 'doc'
 
     if os.path.isdir(output_directory):
         shutil.rmtree(output_directory)
@@ -46,4 +45,4 @@ if __name__ == '__main__':
         logo=logo_str,
         math=True)
 
-    pdoc.pdoc(module_path, output_directory=FEMTOSCOPE_BASE_DIR)
+    pdoc.pdoc(INSTALL_DIR, output_directory=output_directory)

@@ -6,18 +6,17 @@ Global tests on the Chameleon class (from femtoscope.physics.physical_problems).
 
 """
 
-import os
 import pickle
 from pathlib import Path
 
 import numpy as np
 import pytest
 
+from femtoscope import TEST_DIR
 from femtoscope.inout.meshfactory import MeshingTools
 from femtoscope.inout.meshfactory import generate_mesh_from_geo
 from femtoscope.inout.meshfactory import generate_uniform_1d_mesh
 from femtoscope.physics.physical_problems import Chameleon
-from femtoscope import TEST_DIR
 
 # Parameters (not be changed!!)
 sa = 1.0

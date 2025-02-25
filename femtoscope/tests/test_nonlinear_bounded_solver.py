@@ -27,6 +27,7 @@ This nonlinear problem does not have an analytical solution but only
 approximations that can nonetheless serve as a benchmark.
 """
 
+import os
 import pytest
 import numpy as np
 from numpy import sqrt

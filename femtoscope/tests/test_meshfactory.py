@@ -4,6 +4,9 @@ Created on Wed Feb  7 10:42:26 2024
 Testing of the `meshfactory` module.
 """
 
+import os
+os.environ["FEMTOSCOPE_TEST_MODE"] = "1"
+
 from pathlib import Path
 
 import pytest

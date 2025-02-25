@@ -21,6 +21,8 @@ which is most probably why the iterative algorithm fails while more general
 direct solvers produce accurate solution.
 
 """
+
+import os
 from pathlib import Path
 
 import pytest

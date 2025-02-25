@@ -3,41 +3,35 @@
 """
 
 from pathlib import Path
-from importlib import resources
-import importlib.util
+import os
+import sys
 
 
-spec = importlib.util.find_spec("femtoscope")
-if spec and spec.origin:
-    femtoscope_path = Path(spec.origin).parent
+def get_main_script_dir():
+    """ Get the directory of the main script being run using sys.argv[0] """
+    return Path(sys.argv[0]).resolve().parent
 
-# Default to the user's current working directory
-_BASE_DIR = Path.cwd()
 
-def set_working_directory(path: str):
-    """Allows the user to set a custom working directory."""
-    global _BASE_DIR
-    _BASE_DIR = Path(path).absolute()
+def get_installation_dir():
+    """ Get the installation directory of the femtoscope package """
+    return Path(__file__).resolve().parent
 
-# Define paths relative to the working directory
-def get_data_dir():
-    return _BASE_DIR / "data"
 
-def get_result_dir():
-    return get_data_dir() / "result"
+# Check if we're running in test mode by looking for an environment variable
+if os.getenv("FEMTOSCOPE_TEST_MODE") == "1":
+    # Use the installation directory for the base dir during tests
+    FEMTOSCOPE_BASE_DIR = get_installation_dir()
+else:
+    # Default to the directory of the main script
+    FEMTOSCOPE_BASE_DIR = Path(
+        os.getenv('FEMTOSCOPE_BASE_DIR', str(get_main_script_dir())))
 
-def get_mesh_dir():
-    return get_data_dir() / "mesh"
-
-def get_images_dir():
-    return femtoscope_path / "images"
-
-def get_tmp_dir():
-    return get_data_dir() / "tmp"
-
-# Default paths (if the user does not call set_working_directory)
-DATA_DIR = get_data_dir()
-RESULT_DIR = get_result_dir()
-MESH_DIR = get_mesh_dir()
-IMAGES_DIR = get_images_dir()
-TMP_DIR = get_tmp_dir()
+# Derive other directories from the base directory
+DATA_DIR = FEMTOSCOPE_BASE_DIR / 'data'
+RESULT_DIR = DATA_DIR / 'results'
+TMP_DIR = DATA_DIR / 'tmp'
+MESH_DIR = DATA_DIR / 'mesh'
+GEO_DIR = MESH_DIR / 'geo'
+INSTALL_DIR = get_installation_dir()
+IMAGES_DIR = INSTALL_DIR / 'images'
+TEST_DIR = INSTALL_DIR / 'tests'

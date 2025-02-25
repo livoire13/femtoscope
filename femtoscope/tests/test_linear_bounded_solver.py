@@ -24,6 +24,8 @@ symmetric case. The analytical solution to that problem is computed in
 `femtoscope.misc.analytical`
 
 """
+
+import os
 from pathlib import Path
 
 import pytest

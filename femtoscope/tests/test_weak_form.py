@@ -4,6 +4,7 @@ Created on Mon Feb 12 16:43:28 2024
 Testing of the `WeakForm` class.
 """
 
+import os
 from pathlib import Path
 
 from functools import partial

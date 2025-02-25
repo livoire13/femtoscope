@@ -4,6 +4,7 @@ Created on Tue Feb 13 09:50:12 2024
 Testing of `PreTerm` class.
 """
 
+import os
 import pytest
 from femtoscope.core.pre_term import PreTerm
 

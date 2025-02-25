@@ -6,7 +6,10 @@ build-backend = "setuptools.build_meta"
 exclude = ["data", "images", "script", "tutorials", "doc"]
 
 [tool.setuptools.package-data]
-"femtoscope" = ["data/**/*", "data/**/.*", "images/**/*"]
+"femtoscope" = ["data/**/*", "data/**/.*", "**/*.pkl", "images/**/*"]
+
+[tool.setuptools]
+include-package-data = true
 
 [project]
 name = "femtoscope"

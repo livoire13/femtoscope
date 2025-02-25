@@ -6,17 +6,18 @@ Global tests on the Chameleon class (from femtoscope.physics.physical_problems).
 
 """
 
+import os
 import pickle
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from femtoscope import DATA_DIR
 from femtoscope.inout.meshfactory import MeshingTools
 from femtoscope.inout.meshfactory import generate_mesh_from_geo
 from femtoscope.inout.meshfactory import generate_uniform_1d_mesh
 from femtoscope.physics.physical_problems import Chameleon
+from femtoscope import TEST_DIR
 
 # Parameters (not be changed!!)
 sa = 1.0
@@ -36,7 +37,7 @@ meshint_name = 'mesh_test_sphere_int.vtk'
 meshext_name = 'mesh_test_sphere_ext.vtk'
 
 # Reference solution for the test
-pkl_file = Path(DATA_DIR / "../femtoscope/tests/data/chameleon_radial_test.pkl")
+pkl_file = Path(TEST_DIR / 'data' / 'chameleon_radial_test.pkl')
 with open(pkl_file, mode='rb') as f:
     ref_data = pickle.load(f)
 rr_ref = ref_data['r']

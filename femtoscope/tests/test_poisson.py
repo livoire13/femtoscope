@@ -6,6 +6,7 @@ Global tests on the Poisson class (from femtoscope.physics.physical_problems).
 
 """
 
+import os
 from pathlib import Path
 
 import pytest

@@ -8,6 +8,7 @@ Instances of classes 'NonLinearSolver' and 'NonLinearMonitor' are interlinked.
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import inspect
 import sys
@@ -22,6 +23,9 @@ import pandas as pd
 
 import femtoscope.core.solvers as solvers  # to avoid circular import error
 from femtoscope.core.weak_form import WeakForm
+
+if TYPE_CHECKING:
+    from femtoscope.core.solvers import NonLinearSolver  # Only for type hints
 
 
 def get_criteria_dict() -> dict:
@@ -580,7 +584,7 @@ class NonLinearMonitor:
         output_string = self._format_dataframe_string_report(df)
         print(output_string + '\n')
 
-    def link_monitor_to_solver(self, nl_solver: solvers.NonLinearSolver):
+    def link_monitor_to_solver(self, nl_solver: "NonLinearSolver"):
         """
         Link the current `NonLinearMonitor` instance to a given
         `NonLinearSolver` instance. This link is two-way in the sense that the

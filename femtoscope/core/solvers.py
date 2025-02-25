@@ -11,6 +11,9 @@ https://sfepy.org/doc-devel/src/sfepy/solvers/ls.html#module-sfepy.solvers.ls
 By default, femtoscope will use 'ScipyDirect' for solving linear systems.
 """
 
+from __future__ import annotations  # Enables forward declarations for Python <3.10
+from typing import TYPE_CHECKING
+
 import warnings
 
 from pathlib import Path
@@ -34,6 +37,9 @@ from femtoscope.misc.util import get_date_string
 from femtoscope import RESULT_DIR
 
 output.set_output(quiet=True)  # Toggle for Sfepy console's messages
+
+if TYPE_CHECKING:  # Only for type hints
+    from femtoscope.core.nonlinear_monitoring import NonLinearMonitor
 
 
 class LinearSolver:
@@ -835,7 +841,7 @@ class NonLinearSolver(LinearSolver):
             raise NotImplementedError(
                 f"Method {self.relax_method} is not a valid relaxation method")
 
-    def link_solver_to_monitor(self, monitor: monitoring.NonLinearMonitor):
+    def link_solver_to_monitor(self, monitor: "NonLinearMonitor"):
         """
         Link the current `NonLinearSolver` instance to a given
         `NonLinearMonitor` instance. This link is two-way in the sense that the

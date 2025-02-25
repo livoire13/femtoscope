@@ -17,13 +17,15 @@ https://github.com/advisories/GHSA-5vgj-ggm4-fg62
 
 """
 
-import pdoc
-import femtoscope
-from femtoscope import IMAGES_DIR
-
 from pathlib import Path
 import os
 import shutil
+
+import pdoc
+
+import femtoscope
+from femtoscope import FEMTOSCOPE_BASE_DIR
+from femtoscope import IMAGES_DIR
 
 if __name__ == '__main__':
 
@@ -44,4 +46,4 @@ if __name__ == '__main__':
         logo=logo_str,
         math=True)
 
-    pdoc.pdoc(module_path, output_directory=output_directory)
+    pdoc.pdoc(module_path, output_directory=FEMTOSCOPE_BASE_DIR)

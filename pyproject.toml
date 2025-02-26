@@ -13,7 +13,7 @@ include-package-data = true
 
 [project]
 name = "femtoscope"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python code for solving nonlinear PDEs from modified gravity models on unbounded domains"
 authors = [{name = "Hugo Lévy"}]
 license = {file = "LICENSE"}

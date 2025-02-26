@@ -5,6 +5,7 @@ Testing of `PreTerm` class.
 """
 
 import pytest
+
 from femtoscope.core.pre_term import PreTerm
 
 

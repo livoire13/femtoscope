@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["data", "images", "script", "tutorials", "doc"]
+
+[tool.setuptools.package-data]
+"femtoscope" = ["data/**/*", "data/**/.*", "**/*.pkl", "images/**/*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[project]
+name = "femtoscope"
+version = "0.2.0"
+description = "Python code for solving nonlinear PDEs from modified gravity models on unbounded domains"
+authors = [{name = "Hugo Lévy"}]
+license = {file = "LICENSE"}
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">= 3.9"
+dependencies = [
+	"colorcet",
+	"gmsh==4.11.1",
+	"jax>=0.4.26",
+	"matplotlib",
+	"meshio==4.4.6",
+	"numpy<2",
+	"pandas",
+	"pdoc>=14.5.1",
+	"pyevtk",
+	"pytest",
+	"python-mumps; sys_platform != 'win32'",
+	"pyvista",
+	"sfepy>=2024.3"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+generate-femtoscope-docs = "femtoscope.misc.generate_documentation:main"
+run-femtoscope-tests = "femtoscope.tests.run_tests:main"
+
+[project.urls]
+Repository = "https://github.com/onera/femtoscope"

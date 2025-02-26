@@ -4,20 +4,19 @@ Created on Mon Feb 12 16:43:28 2024
 Testing of the `WeakForm` class.
 """
 
+from functools import partial
 from pathlib import Path
 
-from functools import partial
 import numpy as np
 import pytest
-
-from sfepy.discrete.fem import Mesh, FEDomain, Field
-from sfepy.discrete.conditions import (Conditions, EssentialBC,)
+from sfepy.base.base import IndexedStruct
 from sfepy.discrete import (FieldVariable, Material, Integral, Function,
                             Equation, Equations, Problem)
-from sfepy.terms import Term
+from sfepy.discrete.conditions import (Conditions, EssentialBC, )
+from sfepy.discrete.fem import Mesh, FEDomain, Field
 from sfepy.solvers.ls import ScipyDirect
 from sfepy.solvers.nls import Newton
-from sfepy.base.base import IndexedStruct
+from sfepy.terms import Term
 
 from femtoscope.core.pre_term import PreTerm
 from femtoscope.core.weak_form import WeakForm

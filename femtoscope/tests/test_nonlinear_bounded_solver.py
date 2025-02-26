@@ -27,14 +27,14 @@ This nonlinear problem does not have an analytical solution but only
 approximations that can nonetheless serve as a benchmark.
 """
 
-import pytest
 import numpy as np
+import pytest
 from numpy import sqrt
 
-from femtoscope.core.pre_term import PreTerm
-from femtoscope.core.weak_form import WeakForm
-from femtoscope.core.solvers import NonLinearSolver
 from femtoscope.core.nonlinear_monitoring import NonLinearMonitor
+from femtoscope.core.pre_term import PreTerm
+from femtoscope.core.solvers import NonLinearSolver
+from femtoscope.core.weak_form import WeakForm
 from femtoscope.inout.meshfactory import generate_uniform_1d_mesh
 
 

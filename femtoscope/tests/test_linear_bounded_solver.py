@@ -24,10 +24,11 @@ symmetric case. The analytical solution to that problem is computed in
 `femtoscope.misc.analytical`
 
 """
+
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 from numpy import exp, pi
 
 from femtoscope.core.pre_term import PreTerm

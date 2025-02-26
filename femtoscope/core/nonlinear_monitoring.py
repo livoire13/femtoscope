@@ -8,7 +8,6 @@ Instances of classes 'NonLinearSolver' and 'NonLinearMonitor' are interlinked.
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 import inspect
 import sys
@@ -17,11 +16,11 @@ from collections.abc import Iterable
 from copy import deepcopy
 from numbers import Number
 from typing import List, Tuple, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
-import femtoscope.core.solvers as solvers  # to avoid circular import error
 from femtoscope.core.weak_form import WeakForm
 
 if TYPE_CHECKING:

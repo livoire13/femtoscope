@@ -8,15 +8,15 @@ Global tests on the Poisson class (from femtoscope.physics.physical_problems).
 
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 from numpy import pi
 
-from femtoscope.physics.physical_problems import Poisson
 from femtoscope.inout.meshfactory import (MeshingTools,
                                           generate_uniform_1d_mesh,
                                           generate_mesh_from_geo)
 from femtoscope.misc.analytical import potential_sphere
+from femtoscope.physics.physical_problems import Poisson
 
 sa = 1.0
 sc = 1.0

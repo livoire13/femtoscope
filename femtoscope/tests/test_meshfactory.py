@@ -5,7 +5,6 @@ Testing of the `meshfactory` module.
 """
 
 from pathlib import Path
-
 import pytest
 
 from femtoscope import MESH_DIR

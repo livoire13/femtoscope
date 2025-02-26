@@ -79,13 +79,6 @@ The project uses Python >= 3.9
 ## Tree structure
 
 ```shell
-├───data		# I/O files
-│   ├───mesh
-│   │   └───geo
-│   ├───model
-│   ├───result
-│   └───tmp
-│
 ├───doc
 │
 ├───femtoscope
@@ -95,10 +88,12 @@ The project uses Python >= 3.9
 │   ├───misc
 │   ├───physics	# Poisson & Chameleon classes	
 │   ├───tests	# unit & integration tests
-│
-├───images
-│
-├───script		# Examples
+│	├───data	# I/O files
+│   │   ├───mesh
+│   │   │   └───geo
+│   │   ├───model
+│   │   ├───result
+│   │   └───tmp
 │
 └───tutorials	# hands-on notebooks
 ```

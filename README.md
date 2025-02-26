@@ -83,17 +83,18 @@ The project uses Python >= 3.9
 │
 ├───femtoscope
 │   ├───core	# weak form representation & solvers
-│   ├───display
-│   ├───inout	# mesh & VTK generation
-│   ├───misc
-│   ├───physics	# Poisson & Chameleon classes	
-│   ├───tests	# unit & integration tests
-│	├───data	# I/O files
+│   ├───data	# I/O files
 │   │   ├───mesh
 │   │   │   └───geo
 │   │   ├───model
 │   │   ├───result
 │   │   └───tmp
+│   ├───display
+│   ├───images
+│   ├───inout	# mesh & VTK generation
+│   ├───misc
+│   ├───physics	# Poisson & Chameleon classes
+│   ├───tests	# unit & integration tests
 │
 └───tutorials	# hands-on notebooks
 ```

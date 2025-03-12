@@ -8,7 +8,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.x"]  # 3.x auto-resolves to latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Adjust as needed
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -24,10 +30,10 @@ jobs:
           pip install pytest pytest-cov coverage
 
       - name: Run tests with coverage
-        run: python run_tests.py  # Your test script
+        run: python run_tests.py
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-report-${{ matrix.os }}-py${{ matrix.python-version }}
           path: coverage.xml

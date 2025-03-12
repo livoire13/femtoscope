@@ -30,7 +30,7 @@ jobs:
           pip install pytest pytest-cov coverage
 
       - name: Run tests with coverage
-        run: python tests/run_tests.py
+        run: python ./femtoscope/tests/run_tests.py
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

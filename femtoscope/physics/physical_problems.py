@@ -367,6 +367,7 @@ class Yukawa(AbstractLinear):
 
         return pre_terms
 
+    
     def _create_pre_terms_ext(
             self, density: Union[None, Callable, float]) -> List[PreTerm]:
         """
@@ -387,7 +388,7 @@ class Yukawa(AbstractLinear):
             List of pre-terms further used to instantiate the exterior weakform.
 
         """
-        alpha = self.param_dict['alpha']
+        gamma = self.param_dict['gamma']
         coorsys = self.coorsys
 
         if self.vacuum_exterior:
@@ -396,12 +397,12 @@ class Yukawa(AbstractLinear):
         lapmat = LaplacianMaterials()
         mat1 = lapmat.get_material(self.dim, coorsys=coorsys, tag='ext')
         t1_name = _get_diffusion_term_name(self.dim, self.coorsys)
-        t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=alpha,
+        t1 = PreTerm(t1_name, mat=mat1, tag='cst', prefactor=gamma,
                      mat_kwargs={'Rc': self.Rc})
 
         admat = LapAdvectionMaterials()
         mat2 = admat.get_material(self.dim, coorsys=coorsys, tag='ext')
-        t2 = PreTerm('dw_s_dot_mgrad_s', mat=mat2, tag='cst', prefactor=alpha,
+        t2 = PreTerm('dw_s_dot_mgrad_s', mat=mat2, tag='cst', prefactor=gamma,
                      mat_kwargs={'Rc': self.Rc})
 
         massmat = DensityMaterials()

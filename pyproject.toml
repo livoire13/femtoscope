@@ -30,7 +30,6 @@ dependencies = [
 	"pdoc>=14.5.1",
 	"pyevtk",
 	"pytest",
-	"python-mumps; sys_platform != 'win32'",
 	"pyvista",
 	"sfepy>=2024.3"
 ]

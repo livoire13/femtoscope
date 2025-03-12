@@ -5,14 +5,15 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   test:
-    name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    name: Test on Ubuntu with Python 3.9
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
         python-version: ["3.9"]
 
     steps:
@@ -29,11 +30,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-cov coverage
 
+      - name: Install the package
+        run: pip install -e .
+
+      - name: Debug - Show Current Directory
+        run: pwd
+
+      - name: Debug - List Files
+        run: ls -R
+
       - name: Run tests with coverage
-        run: python ./femtoscope/tests/run_tests.py
+        run: python femtoscope/tests/run_tests.py
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: coverage-report
           path: coverage.xml

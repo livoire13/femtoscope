@@ -23,7 +23,7 @@ pip install femtoscope
 ```
 or from conda-forge
 ```console
-conda install femtoscope
+ conda install conda-forge::femtoscope
 ```
 
 ### Generate documentation

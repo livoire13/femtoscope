@@ -1,12 +1,17 @@
 <p align="center">
-  <img src="femtoscope/images/logo.png" alt="Femtoscope Logo" width="200"/>
+  <img src="femtoscope/images/logo.png" alt="Femtoscope Logo" width="150"/>
 </p>
 
 <p align="center">
   <a href="https://pypi.org/project/femtoscope/">
     <img src="https://img.shields.io/pypi/v/femtoscope" alt="PyPI Version"/>
   </a>
+  <a href="https://anaconda.org/conda-forge/femtoscope">
+    <img src="https://anaconda.org/conda-forge/femtoscope/badges/version.svg" alt="Conda Version"/>
+  </a>
 </p>
+
+<h1 align="center">femtoscope</h1>
 
 The *femtoscope* software was written as part of [Hugo Lévy's PhD thesis](https://theses.hal.science/tel-04789073v1/document) (2021-2024). This Python code can be used to investigate different models of modified gravity within complex geometries on unbounded domains.
 

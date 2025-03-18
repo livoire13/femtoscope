@@ -28,7 +28,7 @@ else:
 
 # Derive other directories from the base directory
 DATA_DIR = FEMTOSCOPE_BASE_DIR / 'data'
-RESULT_DIR = DATA_DIR / 'results'
+RESULT_DIR = DATA_DIR / 'result'
 TMP_DIR = DATA_DIR / 'tmp'
 MESH_DIR = DATA_DIR / 'mesh'
 GEO_DIR = MESH_DIR / 'geo'

@@ -41,6 +41,17 @@ Note that these two options will generate the documentation at the current direc
 
 ### Run tests
 
+_Note on running tests_
+
+_femtoscope_'s test suite uses the [pytest](https://docs.pytest.org/en/stable/) framework, which should be installed separately by users. From PyPI
+```console
+pip install pytest pytest-cov
+```
+or from conda-forge
+```console
+conda install -c conda-forge pytest pytest-cov
+```
+
 To check the installation, it is recommended to run the tests bundle with
 ```console
 python -m femtoscope.tests.run_tests

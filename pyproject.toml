@@ -22,14 +22,12 @@ requires-python = ">= 3.9"
 dependencies = [
 	"colorcet",
 	"gmsh==4.11.1",
-	"jax>=0.4.26",
 	"matplotlib",
 	"meshio==4.4.6",
 	"numpy<2",
 	"pandas",
 	"pdoc>=14.5.1",
 	"pyevtk",
-	"pytest",
 	"pyvista",
 	"sfepy>=2024.3"
 ]
